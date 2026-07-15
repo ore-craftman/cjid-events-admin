@@ -1,7 +1,9 @@
 import { Info, Star } from 'lucide-react'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
+import { TimeSelect } from '../ui/TimeSelect'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
+import { displayDateToInputValue } from '../../utils/date'
 
 interface BasicInformationProps {
   featured: boolean
@@ -36,25 +38,21 @@ export function BasicInformation({
             className={inputClassName}
             placeholder="Event title"
             defaultValue={defaults.title}
+            required
           />
         </FormField>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Date" required>
             <input
-              type="text"
+              type="date"
               className={inputClassName}
-              placeholder="e.g. March 19, 2024"
-              defaultValue={defaults.date}
+              defaultValue={displayDateToInputValue(defaults.date)}
+              required
             />
           </FormField>
           <FormField label="Time">
-            <input
-              type="text"
-              className={inputClassName}
-              placeholder="e.g. 10:00 AM (GMT)"
-              defaultValue={defaults.time}
-            />
+            <TimeSelect defaultValue={defaults.time} />
           </FormField>
         </div>
 

@@ -41,6 +41,17 @@ export interface Recording {
   url: string
 }
 
+export type FieldType =
+  | 'short-text'
+  | 'long-text'
+  | 'dropdown'
+  | 'phone'
+  | 'checkbox'
+  | 'multiple-choice'
+  | 'number'
+  | 'date'
+  | 'url'
+
 export interface BlogPost {
   id: string
   title: string
@@ -48,15 +59,8 @@ export interface BlogPost {
   status: 'Published' | 'Draft'
   date: string
   readTime: string
+  content?: string
 }
-
-export type FieldType =
-  | 'short-text'
-  | 'long-text'
-  | 'dropdown'
-  | 'phone'
-  | 'checkbox'
-  | 'number'
 
 export interface RegistrationField {
   id: string

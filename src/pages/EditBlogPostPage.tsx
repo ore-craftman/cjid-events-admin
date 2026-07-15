@@ -1,21 +1,18 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BasicInformation } from '../components/event-form/BasicInformation'
-import { SpeakersSection } from '../components/event-form/SpeakersSection'
-import { AgendaSection } from '../components/event-form/AgendaSection'
-import { EditAudienceResources } from '../components/event-form/EditAudienceResources'
+import { BlogPostForm } from '../components/blog/BlogPostForm'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
-import { editEventData } from '../data/mockData'
+import { blogPosts } from '../data/mockData'
 
-export function EditEventPage() {
-  const [featured, setFeatured] = useState(editEventData.featured)
+export function EditBlogPostPage() {
+  const { id } = useParams()
+  const post = blogPosts.find((p) => p.id === id) ?? blogPosts[0]
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null,
   )
-  const event = editEventData
 
   const handleSave = async () => {
     setFeedback(null)
@@ -25,7 +22,7 @@ export function EditEventPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setFeedback({
         type: 'success',
-        message: 'Changes saved successfully!',
+        message: 'Blog post updated successfully!',
       })
     } catch {
       setFeedback({
@@ -41,14 +38,14 @@ export function EditEventPage() {
     <Layout>
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
-          to="/?tab=upcoming"
+          to="/?tab=blog"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Events
+          Back to Blog Posts
         </Link>
-        <h1 className="text-2xl font-bold text-zinc-900 sm:text-3xl">Edit Event</h1>
-        <p className="mt-1 text-sm text-zinc-500">{event.title}</p>
+        <h1 className="text-2xl font-bold text-zinc-900 sm:text-3xl">Edit Post</h1>
+        <p className="mt-1 text-sm text-zinc-500">{post.title}</p>
 
         {feedback && (
           <div className="mt-6">
@@ -61,29 +58,7 @@ export function EditEventPage() {
         )}
 
         <div className="mt-6 space-y-6 sm:mt-8">
-          <BasicInformation
-            featured={featured}
-            onFeaturedChange={setFeatured}
-            showStatus
-            defaults={{
-              title: event.title,
-              date: event.date,
-              time: event.time,
-              location: event.location,
-              eventType: event.type.toLowerCase(),
-              status: event.status.toLowerCase(),
-              description: event.description,
-              moderator: event.moderator,
-              externalUrl: event.externalRegistrationUrl,
-            }}
-          />
-          <SpeakersSection initialSpeakers={event.speakers} />
-          <AgendaSection initialItems={event.agenda} />
-          <EditAudienceResources
-            initialAudience={event.audience}
-            initialResources={event.resources}
-            initialRecordings={event.recordings}
-          />
+          <BlogPostForm defaults={post} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">
@@ -101,7 +76,7 @@ export function EditEventPage() {
             {isSubmitting ? 'Saving…' : 'Save Changes'}
           </button>
           <Link
-            to="/"
+            to="/?tab=blog"
             className="rounded-md border border-zinc-300 bg-white px-6 py-2.5 text-center text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 sm:text-left"
           >
             Cancel

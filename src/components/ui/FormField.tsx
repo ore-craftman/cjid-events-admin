@@ -10,7 +10,7 @@ export function FormField({ label, required, children, className = '' }: FormFie
     <div className={className}>
       <label className="mb-1.5 block text-sm font-medium text-zinc-700">
         {label}
-        {required && <span className="text-red-500"> *</span>}
+        {required && <span className="text-red-600"> *</span>}
       </label>
       {children}
     </div>

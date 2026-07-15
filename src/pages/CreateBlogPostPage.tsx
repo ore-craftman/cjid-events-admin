@@ -2,17 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BasicInformation } from '../components/event-form/BasicInformation'
-import { SpeakersSection } from '../components/event-form/SpeakersSection'
-import { AgendaSection } from '../components/event-form/AgendaSection'
-import { AudienceSection } from '../components/event-form/AudienceSection'
-import { RegistrationFieldsSection } from '../components/event-form/RegistrationFieldsSection'
+import { BlogPostForm } from '../components/blog/BlogPostForm'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
-import { defaultRegistrationFields } from '../data/mockData'
 
-export function CreateEventPage() {
+export function CreateBlogPostPage() {
   const navigate = useNavigate()
-  const [featured, setFeatured] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null,
@@ -26,13 +20,13 @@ export function CreateEventPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setFeedback({
         type: 'success',
-        message: 'Event created successfully! Redirecting to dashboard…',
+        message: 'Blog post created successfully! Redirecting to dashboard…',
       })
-      setTimeout(() => navigate('/?tab=upcoming'), 2000)
+      setTimeout(() => navigate('/?tab=blog'), 2000)
     } catch {
       setFeedback({
         type: 'error',
-        message: 'Failed to create event. Please check required fields and try again.',
+        message: 'Failed to create blog post. Please check required fields and try again.',
       })
     } finally {
       setIsSubmitting(false)
@@ -43,13 +37,13 @@ export function CreateEventPage() {
     <Layout>
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
-          to="/?tab=create"
+          to="/?tab=blog"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Events
+          Back to Blog Posts
         </Link>
-        <h1 className="mb-6 text-2xl font-bold text-zinc-900 sm:mb-8 sm:text-3xl">Create New Event</h1>
+        <h1 className="mb-6 text-2xl font-bold text-zinc-900 sm:mb-8 sm:text-3xl">Create New Post</h1>
 
         {feedback && (
           <div className="mb-6">
@@ -62,11 +56,7 @@ export function CreateEventPage() {
         )}
 
         <div className="space-y-6">
-          <BasicInformation featured={featured} onFeaturedChange={setFeatured} />
-          <SpeakersSection />
-          <AgendaSection />
-          <AudienceSection />
-          <RegistrationFieldsSection initialFields={defaultRegistrationFields} />
+          <BlogPostForm />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">
@@ -81,10 +71,10 @@ export function CreateEventPage() {
             ) : (
               <FileText className="h-4 w-4" />
             )}
-            {isSubmitting ? 'Creating Event…' : 'Create Event'}
+            {isSubmitting ? 'Creating Post…' : 'Create Post'}
           </button>
           <Link
-            to="/"
+            to="/?tab=blog"
             className="text-center text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 sm:text-left"
           >
             Cancel

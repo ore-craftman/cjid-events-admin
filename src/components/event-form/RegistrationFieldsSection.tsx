@@ -10,7 +10,10 @@ const fieldTypes: { type: FieldType; label: string }[] = [
   { type: 'dropdown', label: 'Dropdown' },
   { type: 'phone', label: 'Phone' },
   { type: 'checkbox', label: 'Checkbox' },
+  { type: 'multiple-choice', label: 'Multiple Choice' },
   { type: 'number', label: 'Number' },
+  { type: 'date', label: 'Date' },
+  { type: 'url', label: 'URL / Link' },
 ]
 
 const fieldTypeLabels: Record<FieldType, string> = {
@@ -19,10 +22,13 @@ const fieldTypeLabels: Record<FieldType, string> = {
   dropdown: 'Dropdown',
   phone: 'Phone',
   checkbox: 'Checkbox',
+  'multiple-choice': 'Multiple Choice',
   number: 'Number',
+  date: 'Date',
+  url: 'URL / Link',
 }
 
-const OPTION_FIELD_TYPES: FieldType[] = ['dropdown', 'checkbox']
+const OPTION_FIELD_TYPES: FieldType[] = ['dropdown', 'checkbox', 'multiple-choice']
 
 interface RegistrationFieldsSectionProps {
   initialFields: RegistrationField[]
@@ -47,7 +53,7 @@ function FieldPreview({
     <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 sm:p-5">
       <label className="mb-2 block text-sm font-medium text-zinc-700">
         {displayLabel}
-        {required && <span className="text-red-500"> *</span>}
+        {required && <span className="text-red-600"> *</span>}
       </label>
 
       {type === 'long-text' && (
@@ -85,6 +91,32 @@ function FieldPreview({
         </div>
       )}
 
+      {type === 'multiple-choice' && (
+        <div className="space-y-2">
+          {(options.filter(Boolean).length > 0 ? options.filter(Boolean) : ['Option 1', 'Option 2']).map(
+            (opt) => (
+              <label key={opt} className="flex items-center gap-2 text-sm text-zinc-700">
+                <input type="radio" disabled className="h-4 w-4 border-zinc-300" name="preview-radio" />
+                {opt}
+              </label>
+            ),
+          )}
+        </div>
+      )}
+
+      {type === 'date' && (
+        <input type="date" className={inputClassName} disabled />
+      )}
+
+      {type === 'url' && (
+        <input
+          type="url"
+          className={inputClassName}
+          placeholder={placeholder || 'https://example.com'}
+          disabled
+        />
+      )}
+
       {(type === 'short-text' || type === 'phone' || type === 'number') && (
         <input
           type={type === 'number' ? 'number' : type === 'phone' ? 'tel' : 'text'}
@@ -100,6 +132,21 @@ function FieldPreview({
   )
 }
 
+function reorderFields(
+  fields: RegistrationField[],
+  draggedId: string,
+  targetId: string,
+): RegistrationField[] {
+  const draggedIndex = fields.findIndex((f) => f.id === draggedId)
+  const targetIndex = fields.findIndex((f) => f.id === targetId)
+  if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) return fields
+
+  const updated = [...fields]
+  const [removed] = updated.splice(draggedIndex, 1)
+  updated.splice(targetIndex, 0, removed)
+  return updated
+}
+
 export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsSectionProps) {
   const [fields, setFields] = useState<RegistrationField[]>(initialFields)
   const [selectedType, setSelectedType] = useState<FieldType>('short-text')
@@ -107,6 +154,8 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
   const [placeholder, setPlaceholder] = useState('')
   const [options, setOptions] = useState<string[]>([''])
   const [required, setRequired] = useState(false)
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
 
   const showOptions = OPTION_FIELD_TYPES.includes(selectedType)
   const canAdd = label.trim().length > 0
@@ -160,6 +209,22 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
     setFields((prev) => prev.filter((f) => f.id !== id))
   }
 
+  const handleDragStart = (id: string) => {
+    setDraggedId(id)
+  }
+
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    if (!draggedId || draggedId === targetId) return
+    setDragOverId(targetId)
+    setFields((prev) => reorderFields(prev, draggedId, targetId))
+  }
+
+  const handleDragEnd = () => {
+    setDraggedId(null)
+    setDragOverId(null)
+  }
+
   return (
     <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-6">
@@ -174,16 +239,35 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-col gap-3 rounded-md border border-zinc-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              draggable
+              onDragStart={() => handleDragStart(field.id)}
+              onDragOver={(e) => handleDragOver(e, field.id)}
+              onDragEnd={handleDragEnd}
+              className={`flex flex-col gap-3 rounded-md border px-4 py-3 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+                dragOverId === field.id && draggedId !== field.id
+                  ? 'border-zinc-400 bg-zinc-50'
+                  : 'border-zinc-200'
+              } ${draggedId === field.id ? 'opacity-50' : ''}`}
             >
               <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  className="cursor-grab text-zinc-400 hover:text-zinc-600 active:cursor-grabbing"
+                  aria-label="Drag to reorder"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="h-4 w-4" />
+                </button>
                 <span className="text-sm font-medium text-zinc-400">{index + 1}.</span>
                 <div>
-                  <p className="text-sm font-medium text-zinc-900">{field.label}</p>
+                  <p className="text-sm font-medium text-zinc-900">
+                    {field.label}
+                    {field.required && <span className="text-red-600"> *</span>}
+                  </p>
                   <p className="text-xs text-zinc-500">
                     {fieldTypeLabels[field.type]}
                     {field.required && (
-                      <span className="ml-2 rounded bg-zinc-100 px-1.5 py-0.5 text-zinc-600">
+                      <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 font-medium text-red-600">
                         Required
                       </span>
                     )}
@@ -191,13 +275,6 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
                 </div>
               </div>
               <div className="flex items-center gap-2 self-end sm:self-auto">
-                <button
-                  type="button"
-                  className="cursor-grab text-zinc-300 hover:text-zinc-500"
-                  aria-label="Drag to reorder"
-                >
-                  <GripVertical className="h-4 w-4" />
-                </button>
                 <button
                   type="button"
                   onClick={() => removeField(field.id)}
@@ -236,7 +313,7 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
           </div>
 
           <div className="space-y-4">
-            <FormField label="Field Label">
+            <FormField label="Field Label" required>
               <input
                 type="text"
                 className={inputClassName}

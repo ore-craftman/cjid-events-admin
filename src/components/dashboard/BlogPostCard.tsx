@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Pencil, Trash2 } from 'lucide-react'
 import type { BlogPost } from '../../types'
 
@@ -27,13 +28,13 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-        <button
-          type="button"
+        <Link
+          to={`/posts/${post.id}/edit`}
           className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
         >
           <Pencil className="h-3.5 w-3.5" />
           Edit
-        </button>
+        </Link>
         <button
           type="button"
           className="rounded-md border border-zinc-300 bg-white p-1.5 text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-red-500"

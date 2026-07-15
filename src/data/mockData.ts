@@ -74,6 +74,8 @@ export const blogPosts: BlogPost[] = [
     status: 'Published',
     date: 'November 25, 2025',
     readTime: '5 min read',
+    content:
+      'The Media Freedom Conference brought together journalists, advocates, and policymakers from across West Africa to discuss press freedom challenges and opportunities.',
   },
   {
     id: '2',
@@ -82,6 +84,8 @@ export const blogPosts: BlogPost[] = [
     status: 'Published',
     date: 'October 18, 2025',
     readTime: '7 min read',
+    content:
+      'Data journalism is transforming how African newsrooms tell stories, enabling deeper investigations and more accountable reporting.',
   },
   {
     id: '3',
@@ -90,8 +94,12 @@ export const blogPosts: BlogPost[] = [
     status: 'Draft',
     date: 'September 5, 2025',
     readTime: '4 min read',
+    content:
+      'A look at how the CJID team designed and built the events platform to better serve journalists and media professionals.',
   },
 ]
+
+export const editBlogPostData: BlogPost = blogPosts[0]
 
 export const editEventData: Event = {
   id: '4',
