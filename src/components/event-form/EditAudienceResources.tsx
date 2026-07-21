@@ -1,8 +1,16 @@
-import { useState } from 'react'
+import { forwardRef, useImperativeHandle, useState } from 'react'
 import { FileText, Plus, X } from 'lucide-react'
 import { FormField, inputClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
 import type { Recording, Resource } from '../../types'
+
+export interface EditAudienceResourcesHandle {
+  getValues: () => {
+    audience: string[]
+    resources: Resource[]
+    recordings: Recording[]
+  }
+}
 
 interface EditAudienceResourcesProps {
   initialAudience?: string[]
@@ -10,11 +18,13 @@ interface EditAudienceResourcesProps {
   initialRecordings?: Recording[]
 }
 
-export function EditAudienceResources({
-  initialAudience = [],
-  initialResources = [],
-  initialRecordings = [],
-}: EditAudienceResourcesProps) {
+export const EditAudienceResources = forwardRef<
+  EditAudienceResourcesHandle,
+  EditAudienceResourcesProps
+>(function EditAudienceResources(
+  { initialAudience = [], initialResources = [], initialRecordings = [] },
+  ref,
+) {
   const [audience, setAudience] = useState<string[]>(initialAudience)
   const [resources, setResources] = useState<Resource[]>(initialResources)
   const [recordings, setRecordings] = useState<Recording[]>(initialRecordings)
@@ -24,6 +34,10 @@ export function EditAudienceResources({
   const [resourceUrl, setResourceUrl] = useState('')
   const [recordingLabel, setRecordingLabel] = useState('')
   const [recordingUrl, setRecordingUrl] = useState('')
+
+  useImperativeHandle(ref, () => ({
+    getValues: () => ({ audience, resources, recordings }),
+  }))
 
   const addAudience = () => {
     if (!newAudience.trim()) return
@@ -211,4 +225,4 @@ export function EditAudienceResources({
       </div>
     </FormSection>
   )
-}
+})

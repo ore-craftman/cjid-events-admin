@@ -1,40 +1,117 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BasicInformation } from '../components/event-form/BasicInformation'
-import { SpeakersSection } from '../components/event-form/SpeakersSection'
-import { AgendaSection } from '../components/event-form/AgendaSection'
-import { EditAudienceResources } from '../components/event-form/EditAudienceResources'
+import { BasicInformation, type BasicInformationHandle } from '../components/event-form/BasicInformation'
+import { SpeakersSection, type SpeakersSectionHandle } from '../components/event-form/SpeakersSection'
+import { AgendaSection, type AgendaSectionHandle } from '../components/event-form/AgendaSection'
+import {
+  EditAudienceResources,
+  type EditAudienceResourcesHandle,
+} from '../components/event-form/EditAudienceResources'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
-import { editEventData } from '../data/mockData'
+import { getEvent, updateEvent } from '../api/events'
+import { ApiError } from '../api/client'
+import type { Event } from '../types'
 
 export function EditEventPage() {
-  const [featured, setFeatured] = useState(editEventData.featured)
+  const { id } = useParams()
+  const basicInfoRef = useRef<BasicInformationHandle>(null)
+  const speakersRef = useRef<SpeakersSectionHandle>(null)
+  const agendaRef = useRef<AgendaSectionHandle>(null)
+  const audienceResourcesRef = useRef<EditAudienceResourcesHandle>(null)
+
+  const [event, setEvent] = useState<Event | null>(null)
+  const [featured, setFeatured] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null,
   )
-  const event = editEventData
+
+  useEffect(() => {
+    if (!id) return
+
+    getEvent(id)
+      .then((data) => {
+        setEvent(data)
+        setFeatured(data.featured)
+      })
+      .catch(() => {
+        setFeedback({ type: 'error', message: 'Failed to load event.' })
+      })
+      .finally(() => setLoading(false))
+  }, [id])
 
   const handleSave = async () => {
+    if (!id) return
     setFeedback(null)
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const basic = basicInfoRef.current?.getValues()
+      if (!basic?.title || !basic.date || !basic.type) {
+        throw new Error('Please fill in the required fields: title, date, and event type.')
+      }
+
+      const audienceResources = audienceResourcesRef.current?.getValues()
+
+      await updateEvent(id, {
+        title: basic.title,
+        date: basic.date,
+        time: basic.time,
+        location: basic.location,
+        type: basic.type,
+        status: basic.status,
+        description: basic.description,
+        featured,
+        moderator: basic.moderator,
+        externalRegistrationUrl: basic.externalRegistrationUrl,
+        speakers: speakersRef.current?.getValues().map(({ name, role }) => ({ name, role })),
+        agenda: agendaRef.current?.getValues(),
+        audience: audienceResources?.audience,
+        resources: audienceResources?.resources.map(({ name, url }) => ({ name, url })),
+        recordings: audienceResources?.recordings.map(({ label, url }) => ({ label, url })),
+      })
+
       setFeedback({
         type: 'success',
         message: 'Changes saved successfully!',
       })
-    } catch {
+    } catch (err) {
       setFeedback({
         type: 'error',
-        message: 'Failed to save changes. Please try again.',
+        message:
+          err instanceof ApiError || err instanceof Error
+            ? err.message
+            : 'Failed to save changes. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center text-sm text-zinc-500">
+          Loading event…
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!event) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center">
+          <p className="text-sm text-zinc-500">Event not found.</p>
+          <Link to="/" className="mt-4 inline-block text-sm font-medium text-zinc-900">
+            Back to dashboard
+          </Link>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -62,6 +139,7 @@ export function EditEventPage() {
 
         <div className="mt-6 space-y-6 sm:mt-8">
           <BasicInformation
+            ref={basicInfoRef}
             featured={featured}
             onFeaturedChange={setFeatured}
             showStatus
@@ -77,9 +155,10 @@ export function EditEventPage() {
               externalUrl: event.externalRegistrationUrl,
             }}
           />
-          <SpeakersSection initialSpeakers={event.speakers} />
-          <AgendaSection initialItems={event.agenda} />
+          <SpeakersSection ref={speakersRef} initialSpeakers={event.speakers} />
+          <AgendaSection ref={agendaRef} initialItems={event.agenda} />
           <EditAudienceResources
+            ref={audienceResourcesRef}
             initialAudience={event.audience}
             initialResources={event.resources}
             initialRecordings={event.recordings}

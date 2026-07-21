@@ -1,12 +1,31 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Trash2 } from 'lucide-react'
+import { deletePost } from '../../api/posts'
 import type { BlogPost } from '../../types'
 
 interface BlogPostCardProps {
   post: BlogPost
+  onDeleted?: (id: string) => void
 }
 
-export function BlogPostCard({ post }: BlogPostCardProps) {
+export function BlogPostCard({ post, onDeleted }: BlogPostCardProps) {
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${post.title}"? This cannot be undone.`)) return
+
+    setDeleting(true)
+    try {
+      await deletePost(post.id)
+      onDeleted?.(post.id)
+    } catch {
+      window.alert('Failed to delete blog post.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
       <div className="min-w-0 flex-1">
@@ -37,10 +56,12 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
         </Link>
         <button
           type="button"
-          className="rounded-md border border-zinc-300 bg-white p-1.5 text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-red-500"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="rounded-md border border-zinc-300 bg-white p-1.5 text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-red-500 disabled:opacity-50"
           aria-label="Delete post"
         >
-          <Trash2 className="h-4 w-4" />
+          {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
         </button>
       </div>
     </div>

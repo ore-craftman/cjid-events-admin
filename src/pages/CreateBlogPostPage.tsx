@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BlogPostForm } from '../components/blog/BlogPostForm'
+import { BlogPostForm, type BlogPostFormHandle } from '../components/blog/BlogPostForm'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
+import { createPost } from '../api/posts'
+import { ApiError } from '../api/client'
 
 export function CreateBlogPostPage() {
   const navigate = useNavigate()
+  const formRef = useRef<BlogPostFormHandle>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null,
@@ -17,16 +20,31 @@ export function CreateBlogPostPage() {
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const values = formRef.current?.getValues()
+      if (!values?.title || !values.category || !values.content) {
+        throw new Error('Please fill in the required fields: title, category, and content.')
+      }
+
+      await createPost({
+        title: values.title,
+        category: values.category,
+        status: values.status,
+        readTime: values.readTime,
+        content: values.content,
+      })
+
       setFeedback({
         type: 'success',
         message: 'Blog post created successfully! Redirecting to dashboard…',
       })
       setTimeout(() => navigate('/?tab=blog'), 2000)
-    } catch {
+    } catch (err) {
       setFeedback({
         type: 'error',
-        message: 'Failed to create blog post. Please check required fields and try again.',
+        message:
+          err instanceof ApiError || err instanceof Error
+            ? err.message
+            : 'Failed to create blog post. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
@@ -56,7 +74,7 @@ export function CreateBlogPostPage() {
         )}
 
         <div className="space-y-6">
-          <BlogPostForm />
+          <BlogPostForm ref={formRef} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">

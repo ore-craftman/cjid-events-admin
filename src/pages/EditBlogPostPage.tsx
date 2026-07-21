@@ -1,37 +1,91 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BlogPostForm } from '../components/blog/BlogPostForm'
+import { BlogPostForm, type BlogPostFormHandle } from '../components/blog/BlogPostForm'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
-import { blogPosts } from '../data/mockData'
+import { getPost, updatePost } from '../api/posts'
+import { ApiError } from '../api/client'
+import type { BlogPost } from '../types'
 
 export function EditBlogPostPage() {
   const { id } = useParams()
-  const post = blogPosts.find((p) => p.id === id) ?? blogPosts[0]
+  const formRef = useRef<BlogPostFormHandle>(null)
+  const [post, setPost] = useState<BlogPost | null>(null)
+  const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
     null,
   )
 
+  useEffect(() => {
+    if (!id) return
+
+    getPost(id)
+      .then(setPost)
+      .catch(() => {
+        setFeedback({ type: 'error', message: 'Failed to load blog post.' })
+      })
+      .finally(() => setLoading(false))
+  }, [id])
+
   const handleSave = async () => {
+    if (!id) return
     setFeedback(null)
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const values = formRef.current?.getValues()
+      if (!values?.title || !values.category || !values.content) {
+        throw new Error('Please fill in the required fields: title, category, and content.')
+      }
+
+      await updatePost(id, {
+        title: values.title,
+        category: values.category,
+        status: values.status,
+        readTime: values.readTime,
+        content: values.content,
+      })
+
       setFeedback({
         type: 'success',
         message: 'Blog post updated successfully!',
       })
-    } catch {
+    } catch (err) {
       setFeedback({
         type: 'error',
-        message: 'Failed to save changes. Please try again.',
+        message:
+          err instanceof ApiError || err instanceof Error
+            ? err.message
+            : 'Failed to save changes. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center text-sm text-zinc-500">
+          Loading post…
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!post) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center">
+          <p className="text-sm text-zinc-500">Blog post not found.</p>
+          <Link to="/?tab=blog" className="mt-4 inline-block text-sm font-medium text-zinc-900">
+            Back to dashboard
+          </Link>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -58,7 +112,7 @@ export function EditBlogPostPage() {
         )}
 
         <div className="mt-6 space-y-6 sm:mt-8">
-          <BlogPostForm defaults={post} />
+          <BlogPostForm ref={formRef} defaults={post} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">

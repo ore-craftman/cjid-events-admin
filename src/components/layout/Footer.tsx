@@ -1,6 +1,6 @@
 import { Logo } from './Logo'
 
-const eventsLinks = ['Upcoming Events', 'Past Events', 'Blog']
+const eventsLinks = ['Upcoming Events', 'Past Events' /* , 'Blog' */]
 const orgLinks = ['About CJID', 'Contact', 'Privacy Policy']
 
 export function Footer() {

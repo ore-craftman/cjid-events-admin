@@ -1,17 +1,28 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react'
 import { Layout } from '../components/layout/Layout'
-import { BasicInformation } from '../components/event-form/BasicInformation'
-import { SpeakersSection } from '../components/event-form/SpeakersSection'
-import { AgendaSection } from '../components/event-form/AgendaSection'
-import { AudienceSection } from '../components/event-form/AudienceSection'
-import { RegistrationFieldsSection } from '../components/event-form/RegistrationFieldsSection'
+import { BasicInformation, type BasicInformationHandle } from '../components/event-form/BasicInformation'
+import { SpeakersSection, type SpeakersSectionHandle } from '../components/event-form/SpeakersSection'
+import { AgendaSection, type AgendaSectionHandle } from '../components/event-form/AgendaSection'
+import { AudienceSection, type AudienceSectionHandle } from '../components/event-form/AudienceSection'
+import {
+  RegistrationFieldsSection,
+  type RegistrationFieldsSectionHandle,
+} from '../components/event-form/RegistrationFieldsSection'
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
-import { defaultRegistrationFields } from '../data/mockData'
+import { createEvent } from '../api/events'
+import { defaultRegistrationFields } from '../constants/defaults'
+import { ApiError } from '../api/client'
 
 export function CreateEventPage() {
   const navigate = useNavigate()
+  const basicInfoRef = useRef<BasicInformationHandle>(null)
+  const speakersRef = useRef<SpeakersSectionHandle>(null)
+  const agendaRef = useRef<AgendaSectionHandle>(null)
+  const audienceRef = useRef<AudienceSectionHandle>(null)
+  const registrationRef = useRef<RegistrationFieldsSectionHandle>(null)
+
   const [featured, setFeatured] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
@@ -23,16 +34,41 @@ export function CreateEventPage() {
     setIsSubmitting(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const basic = basicInfoRef.current?.getValues()
+      if (!basic?.title || !basic.date || !basic.type) {
+        throw new Error('Please fill in the required fields: title, date, and event type.')
+      }
+
+      await createEvent({
+        title: basic.title,
+        date: basic.date,
+        time: basic.time,
+        location: basic.location,
+        venue: basic.venue,
+        type: basic.type,
+        status: 'upcoming',
+        description: basic.description,
+        featured,
+        moderator: basic.moderator,
+        externalRegistrationUrl: basic.externalRegistrationUrl,
+        speakers: speakersRef.current?.getValues().map(({ name, role }) => ({ name, role })),
+        agenda: agendaRef.current?.getValues(),
+        audience: audienceRef.current?.getValues(),
+        registrationFields: registrationRef.current?.getValues(),
+      })
+
       setFeedback({
         type: 'success',
         message: 'Event created successfully! Redirecting to dashboard…',
       })
       setTimeout(() => navigate('/?tab=upcoming'), 2000)
-    } catch {
+    } catch (err) {
       setFeedback({
         type: 'error',
-        message: 'Failed to create event. Please check required fields and try again.',
+        message:
+          err instanceof ApiError || err instanceof Error
+            ? err.message
+            : 'Failed to create event. Please try again.',
       })
     } finally {
       setIsSubmitting(false)
@@ -62,11 +98,11 @@ export function CreateEventPage() {
         )}
 
         <div className="space-y-6">
-          <BasicInformation featured={featured} onFeaturedChange={setFeatured} />
-          <SpeakersSection />
-          <AgendaSection />
-          <AudienceSection />
-          <RegistrationFieldsSection initialFields={defaultRegistrationFields} />
+          <BasicInformation ref={basicInfoRef} featured={featured} onFeaturedChange={setFeatured} />
+          <SpeakersSection ref={speakersRef} />
+          <AgendaSection ref={agendaRef} />
+          <AudienceSection ref={audienceRef} />
+          <RegistrationFieldsSection ref={registrationRef} initialFields={defaultRegistrationFields} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">

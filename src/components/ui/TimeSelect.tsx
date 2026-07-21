@@ -34,6 +34,7 @@ const TIME_OPTIONS = [
 ]
 
 interface TimeSelectProps {
+  name?: string
   defaultValue?: string
   value?: string
   onChange?: (value: string) => void
@@ -53,11 +54,12 @@ function normalizeTime(value?: string) {
   return partial?.value ?? ''
 }
 
-export function TimeSelect({ defaultValue, value, onChange }: TimeSelectProps) {
+export function TimeSelect({ name, defaultValue, value, onChange }: TimeSelectProps) {
   const resolvedDefault = normalizeTime(defaultValue)
 
   return (
     <select
+      name={name}
       className={selectClassName}
       defaultValue={value === undefined ? resolvedDefault : undefined}
       value={value}

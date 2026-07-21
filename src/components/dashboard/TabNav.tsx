@@ -9,7 +9,7 @@ const tabs: { id: DashboardTab; label: string; count?: number }[] = [
   { id: 'create', label: 'Create Event' },
   { id: 'upcoming', label: 'Upcoming Events', count: 3 },
   { id: 'past', label: 'Past Events', count: 3 },
-  { id: 'blog', label: 'Blog Posts', count: 3 },
+  // { id: 'blog', label: 'Blog Posts', count: 3 },
 ]
 
 export function TabNav({ activeTab, onTabChange }: TabNavProps) {

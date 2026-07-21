@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Pencil, Star, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Star, Trash2 } from 'lucide-react'
+import { deleteEvent } from '../../api/events'
 import type { Event, EventType } from '../../types'
 
 const typeStyles: Record<EventType, string> = {
@@ -11,9 +13,26 @@ const typeStyles: Record<EventType, string> = {
 
 interface EventCardProps {
   event: Event
+  onDeleted?: (id: string) => void
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onDeleted }: EventCardProps) {
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${event.title}"? This cannot be undone.`)) return
+
+    setDeleting(true)
+    try {
+      await deleteEvent(event.id)
+      onDeleted?.(event.id)
+    } catch {
+      window.alert('Failed to delete event.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
       <div className="min-w-0 flex-1">
@@ -43,10 +62,12 @@ export function EventCard({ event }: EventCardProps) {
         </Link>
         <button
           type="button"
-          className="rounded-md border border-zinc-300 bg-white p-1.5 text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-red-500"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="rounded-md border border-zinc-300 bg-white p-1.5 text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-red-500 disabled:opacity-50"
           aria-label="Delete event"
         >
-          <Trash2 className="h-4 w-4" />
+          {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
         </button>
       </div>
     </div>

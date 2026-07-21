@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useImperativeHandle, useState } from 'react'
 import { GripVertical, Plus, Trash2, X } from 'lucide-react'
 import { FormField, inputClassName } from '../ui/FormField'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
@@ -32,6 +32,10 @@ const OPTION_FIELD_TYPES: FieldType[] = ['dropdown', 'checkbox', 'multiple-choic
 
 interface RegistrationFieldsSectionProps {
   initialFields: RegistrationField[]
+}
+
+export interface RegistrationFieldsSectionHandle {
+  getValues: () => RegistrationField[]
 }
 
 function FieldPreview({
@@ -147,7 +151,10 @@ function reorderFields(
   return updated
 }
 
-export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsSectionProps) {
+export const RegistrationFieldsSection = forwardRef<
+  RegistrationFieldsSectionHandle,
+  RegistrationFieldsSectionProps
+>(function RegistrationFieldsSection({ initialFields }, ref) {
   const [fields, setFields] = useState<RegistrationField[]>(initialFields)
   const [selectedType, setSelectedType] = useState<FieldType>('short-text')
   const [label, setLabel] = useState('')
@@ -156,6 +163,10 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
   const [required, setRequired] = useState(false)
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+
+  useImperativeHandle(ref, () => ({
+    getValues: () => fields,
+  }))
 
   const showOptions = OPTION_FIELD_TYPES.includes(selectedType)
   const canAdd = label.trim().length > 0
@@ -400,4 +411,4 @@ export function RegistrationFieldsSection({ initialFields }: RegistrationFieldsS
       </div>
     </section>
   )
-}
+})
