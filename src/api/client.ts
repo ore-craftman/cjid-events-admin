@@ -1,4 +1,12 @@
+import { getStoredToken, clearAuth } from '../lib/auth-storage'
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+
+let onUnauthorized: (() => void) | null = null
+
+export function setUnauthorizedHandler(handler: () => void): void {
+  onUnauthorized = handler
+}
 
 export class ApiError extends Error {
   status: number
@@ -12,11 +20,35 @@ export class ApiError extends Error {
   }
 }
 
+interface RequestOptions {
+  auth?: boolean
+}
+
+function buildHeaders(options?: RequestOptions): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (options?.auth !== false) {
+    const token = getStoredToken()
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    }
+  }
+
+  return headers
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   const text = await response.text()
   const data = text ? JSON.parse(text) : null
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuth()
+      onUnauthorized?.()
+    }
+
     const message =
       (data && typeof data === 'object' && 'detail' in data && String(data.detail)) ||
       `Request failed with status ${response.status}`
@@ -26,7 +58,11 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return data as T
 }
 
-export async function apiGet<T>(path: string, params?: Record<string, string | boolean | undefined>): Promise<T> {
+export async function apiGet<T>(
+  path: string,
+  params?: Record<string, string | boolean | undefined>,
+  options?: RequestOptions,
+): Promise<T> {
   const url = new URL(`${API_BASE}${path}`, window.location.origin)
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -36,29 +72,42 @@ export async function apiGet<T>(path: string, params?: Record<string, string | b
     })
   }
 
-  const response = await fetch(url.toString())
+  const response = await fetch(url.toString(), {
+    headers: buildHeaders(options),
+  })
   return parseResponse<T>(response)
 }
 
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+export async function apiPost<T>(
+  path: string,
+  body: unknown,
+  options?: RequestOptions,
+): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(options),
     body: JSON.stringify(body),
   })
   return parseResponse<T>(response)
 }
 
-export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+export async function apiPatch<T>(
+  path: string,
+  body: unknown,
+  options?: RequestOptions,
+): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(options),
     body: JSON.stringify(body),
   })
   return parseResponse<T>(response)
 }
 
-export async function apiDelete(path: string): Promise<void> {
-  const response = await fetch(`${API_BASE}${path}`, { method: 'DELETE' })
+export async function apiDelete(path: string, options?: RequestOptions): Promise<void> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: buildHeaders(options),
+  })
   await parseResponse<null>(response)
 }
