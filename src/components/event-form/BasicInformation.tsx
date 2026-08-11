@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { Info, Star } from 'lucide-react'
+import { EventThumbnailField } from './EventThumbnailField'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
 import { TimeSelect } from '../ui/TimeSelect'
@@ -38,6 +39,7 @@ interface BasicInformationProps {
     description?: string
     moderator?: string
     externalUrl?: string
+    thumbnailUrl?: string
   }
 }
 
@@ -70,12 +72,14 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
     return (
       <FormSection title="Basic Information">
         <div ref={containerRef} className="space-y-4">
+          <EventThumbnailField defaultThumbnailUrl={defaults.thumbnailUrl} />
+
           <FormField label="Event Title" required>
             <input
               type="text"
               name="title"
               className={inputClassName}
-              placeholder="Event title"
+              placeholder="Enter event title"
               defaultValue={defaults.title}
               required
             />
@@ -184,7 +188,8 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
               <div>
                 <p className="text-sm font-medium text-amber-900">Featured Event</p>
                 <p className="mt-0.5 text-xs text-amber-700">
-                  Featured events are pinned to the homepage and highlighted in listings.
+                  Featured events appear on the large carousel banner on the homepage. Only upcoming
+                  events with the featured flag are shown.
                 </p>
               </div>
             </div>
