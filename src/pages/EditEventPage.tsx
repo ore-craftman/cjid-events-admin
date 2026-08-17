@@ -50,7 +50,7 @@ export function EditEventPage() {
 
     try {
       const basic = basicInfoRef.current?.getValues()
-      if (!basic?.title || !basic.date || !basic.type) {
+      if (!basic?.title || !basic.startDate || !basic.type) {
         throw new Error('Please fill in the required fields: title, date, and event type.')
       }
 
@@ -58,8 +58,11 @@ export function EditEventPage() {
 
       await updateEvent(id, {
         title: basic.title,
-        date: basic.date,
-        time: basic.time,
+        startDate: basic.startDate,
+        endDate: basic.endDate,
+        startTime: basic.startTime,
+        endTime: basic.endTime,
+        registrationDeadline: basic.registrationDeadline,
         location: basic.location,
         type: basic.type,
         status: basic.status,
@@ -145,8 +148,11 @@ export function EditEventPage() {
             showStatus
             defaults={{
               title: event.title,
-              date: event.date,
-              time: event.time,
+              startDate: event.date,
+              endDate: event.endDate,
+              startTime: event.time,
+              endTime: event.endTime,
+              registrationDeadline: event.registrationDeadline,
               location: event.location,
               eventType: event.type.toLowerCase(),
               status: event.status.toLowerCase(),
