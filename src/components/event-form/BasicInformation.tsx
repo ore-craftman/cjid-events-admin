@@ -3,14 +3,15 @@ import { Info, Star } from 'lucide-react'
 import { EventThumbnailField } from './EventThumbnailField'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
-import { TimeSelect } from '../ui/TimeSelect'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
-import { displayDateToInputValue } from '../../utils/date'
 
 export interface BasicInformationValues {
   title: string
-  date: string
-  time: string
+  startDate: string
+  endDate: string
+  startTime: string
+  endTime: string
+  registrationDeadline: string
   location: string
   venue: string
   type: string
@@ -30,8 +31,11 @@ interface BasicInformationProps {
   showStatus?: boolean
   defaults?: {
     title?: string
-    date?: string
-    time?: string
+    startDate?: string
+    endDate?: string
+    startTime?: string
+    endTime?: string
+    registrationDeadline?: string
     location?: string
     eventType?: string
     status?: string
@@ -56,8 +60,11 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
 
         return {
           title: value('title'),
-          date: value('date'),
-          time: value('time'),
+          startDate: value('startDate'),
+          endDate: value('endDate'),
+          startTime: value('startTime'),
+          endTime: value('endTime'),
+          registrationDeadline: value('registrationDeadline'),
           location: value('location'),
           venue: value('venue'),
           type: value('type'),
@@ -86,18 +93,67 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
           </FormField>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Date" required>
+            <FormField label="Start Date" required>
               <input
-                type="date"
-                name="date"
+                type="text"
+                name="startDate"
                 className={inputClassName}
-                defaultValue={displayDateToInputValue(defaults.date)}
+                placeholder="e.g. March 15, 2026"
+                defaultValue={defaults.startDate}
                 required
               />
             </FormField>
-            <FormField label="Time">
-              <TimeSelect name="time" defaultValue={defaults.time} />
+            <FormField label="End Date" required>
+              <input
+                type="text"
+                name="endDate"
+                className={inputClassName}
+                placeholder="e.g. March 15, 2026"
+                defaultValue={defaults.endDate}
+                required
+              />
             </FormField>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Start Time">
+              <input
+                type="text"
+                name="startTime"
+                className={inputClassName}
+                placeholder="e.g. 10:00 AM | WAT"
+                defaultValue={defaults.startTime}
+              />
+            </FormField>
+            <FormField label="End Time">
+              <input
+                type="text"
+                name="endTime"
+                className={inputClassName}
+                placeholder="e.g. 10:00 AM | WAT"
+                defaultValue={defaults.endTime}
+              />
+            </FormField>
+          </div>
+
+          <div className="rounded-lg border border-amber-100 bg-amber-50 p-4">
+            <div className="mb-3 flex items-start gap-2">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <div>
+                <p className="text-sm font-medium text-amber-900">Registration Deadline</p>
+                <p className="mt-0.5 text-xs text-amber-700">
+                  After this date the Register button will be hidden and replaced with "Registration
+                  Closed". Leave blank for no deadline.
+                </p>
+              </div>
+            </div>
+            <input
+              type="text"
+              name="registrationDeadline"
+              className={inputClassName}
+              placeholder="e.g. 10:00 AM | WAT"
+              defaultValue={defaults.registrationDeadline}
+            />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -106,7 +162,7 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
                 type="text"
                 name="location"
                 className={inputClassName}
-                placeholder="Zunari City, Zambia"
+                placeholder="Zoom / City, Country"
                 defaultValue={defaults.location}
               />
             </FormField>
