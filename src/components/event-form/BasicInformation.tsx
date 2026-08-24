@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { Info, Star } from 'lucide-react'
-import { EventThumbnailField } from './EventThumbnailField'
+import { ImageUploadField, type ImageUploadFieldHandle } from '../ui/ImageUploadField'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
@@ -19,6 +19,7 @@ export interface BasicInformationValues {
   description: string
   moderator: string
   externalRegistrationUrl: string
+  imageUrl: string
 }
 
 export interface BasicInformationHandle {
@@ -50,6 +51,7 @@ interface BasicInformationProps {
 export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformationProps>(
   function BasicInformation({ featured, onFeaturedChange, showStatus, defaults = {} }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
+    const imageFieldRef = useRef<ImageUploadFieldHandle>(null)
 
     useImperativeHandle(ref, () => ({
       getValues: () => {
@@ -72,6 +74,7 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
           description: value('description'),
           moderator: value('moderator'),
           externalRegistrationUrl: value('externalRegistrationUrl'),
+          imageUrl: imageFieldRef.current?.getImageUrl() ?? '',
         }
       },
     }))
@@ -79,7 +82,11 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
     return (
       <FormSection title="Basic Information">
         <div ref={containerRef} className="space-y-4">
-          <EventThumbnailField defaultThumbnailUrl={defaults.thumbnailUrl} />
+          <ImageUploadField
+            ref={imageFieldRef}
+            label="Event Thumbnail (landscape or portrait)"
+            defaultImageUrl={defaults.thumbnailUrl}
+          />
 
           <FormField label="Event Title" required>
             <input

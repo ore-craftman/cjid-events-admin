@@ -34,7 +34,7 @@ export function EventCard({ event, onDeleted }: EventCardProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
+    <div className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-4 transition-shadow duration-200 hover:shadow-md sm:flex-row sm:items-start sm:justify-between sm:p-5">
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${typeStyles[event.type]}`}>

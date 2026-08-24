@@ -7,6 +7,7 @@ export interface BlogPostWritePayload {
   status?: string
   readTime?: string
   content?: string
+  imageUrl?: string
 }
 
 export function listPosts(status?: string) {

@@ -35,14 +35,17 @@ export function CreateEventPage() {
 
     try {
       const basic = basicInfoRef.current?.getValues()
-      if (!basic?.title || !basic.date || !basic.type) {
+      if (!basic?.title || !basic.startDate || !basic.type) {
         throw new Error('Please fill in the required fields: title, date, and event type.')
       }
 
       await createEvent({
         title: basic.title,
-        date: basic.date,
-        time: basic.time,
+        date: basic.startDate,
+        time: basic.startTime,
+        endDate: basic.endDate,
+        endTime: basic.endTime,
+        registrationDeadline: basic.registrationDeadline,
         location: basic.location,
         venue: basic.venue,
         type: basic.type,
@@ -51,6 +54,7 @@ export function CreateEventPage() {
         featured,
         moderator: basic.moderator,
         externalRegistrationUrl: basic.externalRegistrationUrl,
+        imageUrl: basic.imageUrl,
         speakers: speakersRef.current?.getValues().map(({ name, role }) => ({ name, role })),
         agenda: agendaRef.current?.getValues(),
         audience: audienceRef.current?.getValues(),
@@ -77,7 +81,7 @@ export function CreateEventPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="animate-slide-up mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
           to="/?tab=create"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
