@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, Pencil, Star, Trash2 } from 'lucide-react'
+import { Loader2, Pencil, Star, Trash2, Users } from 'lucide-react'
 import { deleteEvent } from '../../api/events'
 import type { Event, EventType } from '../../types'
 
@@ -53,6 +53,13 @@ export function EventCard({ event, onDeleted }: EventCardProps) {
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+        <Link
+          to={`/events/${event.id}/registrations`}
+          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+        >
+          <Users className="h-3.5 w-3.5" />
+          Registrations
+        </Link>
         <Link
           to={`/events/${event.id}/edit`}
           className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"

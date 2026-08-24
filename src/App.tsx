@@ -5,6 +5,7 @@ import { GuestRoute } from './components/auth/GuestRoute'
 import { AdminDashboard } from './pages/AdminDashboard'
 import { CreateEventPage } from './pages/CreateEventPage'
 import { EditEventPage } from './pages/EditEventPage'
+import { EventRegistrationsPage } from './pages/EventRegistrationsPage'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { CreateBlogPostPage } from './pages/CreateBlogPostPage'
@@ -52,6 +53,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditEventPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id/registrations"
+            element={
+              <ProtectedRoute>
+                <EventRegistrationsPage />
               </ProtectedRoute>
             }
           />
