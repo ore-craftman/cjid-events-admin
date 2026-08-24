@@ -3,16 +3,21 @@ import type { DashboardTab } from '../../types'
 interface TabNavProps {
   activeTab: DashboardTab
   onTabChange: (tab: DashboardTab) => void
+  counts: {
+    upcoming: number
+    past: number
+    blog: number
+  }
 }
 
-const tabs: { id: DashboardTab; label: string; count?: number }[] = [
-  { id: 'create', label: 'Create Event' },
-  { id: 'upcoming', label: 'Upcoming Events', count: 3 },
-  { id: 'past', label: 'Past Events', count: 3 },
-  // { id: 'blog', label: 'Blog Posts', count: 3 },
-]
+export function TabNav({ activeTab, onTabChange, counts }: TabNavProps) {
+  const tabs: { id: DashboardTab; label: string; count?: number }[] = [
+    { id: 'create', label: 'Create Event' },
+    { id: 'upcoming', label: 'Upcoming Events', count: counts.upcoming },
+    { id: 'past', label: 'Past Events', count: counts.past },
+    { id: 'blog', label: 'Blog Posts', count: counts.blog },
+  ]
 
-export function TabNav({ activeTab, onTabChange }: TabNavProps) {
   return (
     <nav className="-mx-4 overflow-x-auto border-b border-zinc-200 px-4 sm:mx-0 sm:px-0">
       <div className="flex min-w-max gap-5 sm:min-w-0 sm:gap-8">

@@ -7,8 +7,8 @@ import { CreateEventPage } from './pages/CreateEventPage'
 import { EditEventPage } from './pages/EditEventPage'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
-// import { CreateBlogPostPage } from './pages/CreateBlogPostPage'
-// import { EditBlogPostPage } from './pages/EditBlogPostPage'
+import { CreateBlogPostPage } from './pages/CreateBlogPostPage'
+import { EditBlogPostPage } from './pages/EditBlogPostPage'
 
 function App() {
   return (
@@ -55,8 +55,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route path="/posts/create" element={<ProtectedRoute><CreateBlogPostPage /></ProtectedRoute>} />
-          <Route path="/posts/:id/edit" element={<ProtectedRoute><EditBlogPostPage /></ProtectedRoute>} /> */}
+          <Route
+            path="/posts/create"
+            element={
+              <ProtectedRoute>
+                <CreateBlogPostPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/posts/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditBlogPostPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
