@@ -7,6 +7,9 @@ export interface Event {
   title: string
   date: string
   time?: string
+  endDate?: string
+  endTime?: string
+  registrationDeadline?: string
   location: string
   venue?: string
   type: EventType
@@ -16,6 +19,7 @@ export interface Event {
   externalRegistrationUrl?: string
   featured: boolean
   formFieldCount: number
+  imageUrl?: string
   speakers?: Speaker[]
   agenda?: string[]
   audience?: string[]
@@ -60,6 +64,7 @@ export interface BlogPost {
   date: string
   readTime: string
   content?: string
+  imageUrl?: string
 }
 
 export interface RegistrationField {

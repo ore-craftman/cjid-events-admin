@@ -31,6 +31,7 @@ export function CreateBlogPostPage() {
         status: values.status,
         readTime: values.readTime,
         content: values.content,
+        imageUrl: values.imageUrl,
       })
 
       setFeedback({
@@ -53,7 +54,7 @@ export function CreateBlogPostPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="animate-slide-up mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
           to="/?tab=blog"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"

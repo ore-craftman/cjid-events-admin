@@ -58,9 +58,9 @@ export function EditEventPage() {
 
       await updateEvent(id, {
         title: basic.title,
-        startDate: basic.startDate,
+        date: basic.startDate,
         endDate: basic.endDate,
-        startTime: basic.startTime,
+        time: basic.startTime,
         endTime: basic.endTime,
         registrationDeadline: basic.registrationDeadline,
         location: basic.location,
@@ -70,6 +70,7 @@ export function EditEventPage() {
         featured,
         moderator: basic.moderator,
         externalRegistrationUrl: basic.externalRegistrationUrl,
+        imageUrl: basic.imageUrl,
         speakers: speakersRef.current?.getValues().map(({ name, role }) => ({ name, role })),
         agenda: agendaRef.current?.getValues(),
         audience: audienceResources?.audience,
@@ -119,7 +120,7 @@ export function EditEventPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="animate-slide-up mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
           to="/?tab=upcoming"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
@@ -159,6 +160,7 @@ export function EditEventPage() {
               description: event.description,
               moderator: event.moderator,
               externalUrl: event.externalRegistrationUrl,
+              thumbnailUrl: event.imageUrl,
             }}
           />
           <SpeakersSection ref={speakersRef} initialSpeakers={event.speakers} />

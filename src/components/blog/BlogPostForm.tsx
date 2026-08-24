@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
+import { ImageUploadField, type ImageUploadFieldHandle } from '../ui/ImageUploadField'
 import type { BlogPost } from '../../types'
 
 export interface BlogPostFormValues {
@@ -9,6 +10,7 @@ export interface BlogPostFormValues {
   status: string
   readTime: string
   content: string
+  imageUrl: string
 }
 
 export interface BlogPostFormHandle {
@@ -24,6 +26,7 @@ export const BlogPostForm = forwardRef<BlogPostFormHandle, BlogPostFormProps>(fu
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const imageFieldRef = useRef<ImageUploadFieldHandle>(null)
 
   useImperativeHandle(ref, () => ({
     getValues: () => {
@@ -38,6 +41,7 @@ export const BlogPostForm = forwardRef<BlogPostFormHandle, BlogPostFormProps>(fu
         status: value('status'),
         readTime: value('readTime'),
         content: value('content'),
+        imageUrl: imageFieldRef.current?.getImageUrl() ?? '',
       }
     },
   }))
@@ -45,6 +49,12 @@ export const BlogPostForm = forwardRef<BlogPostFormHandle, BlogPostFormProps>(fu
   return (
     <FormSection title="Post Details">
       <div ref={containerRef} className="space-y-4">
+        <ImageUploadField
+          ref={imageFieldRef}
+          label="Post Thumbnail"
+          defaultImageUrl={defaults.imageUrl}
+        />
+
         <FormField label="Post Title" required>
           <input
             type="text"

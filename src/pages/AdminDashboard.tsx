@@ -67,7 +67,7 @@ export function AdminDashboard() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="animate-fade-in mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <DashboardHeader stats={stats} />
         <div className="mt-8">
           <TabNav activeTab={activeTab} onTabChange={handleTabChange} />

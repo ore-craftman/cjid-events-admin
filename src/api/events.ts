@@ -5,6 +5,9 @@ export interface EventWritePayload {
   title: string
   date: string
   time?: string
+  endDate?: string
+  endTime?: string
+  registrationDeadline?: string
   location: string
   venue?: string
   type: string
@@ -13,6 +16,7 @@ export interface EventWritePayload {
   featured?: boolean
   moderator?: string
   externalRegistrationUrl?: string
+  imageUrl?: string
   speakers?: Pick<Speaker, 'name' | 'role'>[]
   agenda?: string[]
   audience?: string[]

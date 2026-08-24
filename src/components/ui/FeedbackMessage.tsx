@@ -12,7 +12,7 @@ export function FeedbackMessage({ type, message, onDismiss }: FeedbackMessagePro
   return (
     <div
       role="alert"
-      className={`flex items-start gap-3 rounded-lg border px-4 py-3 ${
+      className={`animate-slide-up flex items-start gap-3 rounded-lg border px-4 py-3 ${
         isSuccess
           ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
           : 'border-red-200 bg-red-50 text-red-800'
