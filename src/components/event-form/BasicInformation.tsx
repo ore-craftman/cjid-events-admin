@@ -3,7 +3,9 @@ import { Info, Star } from 'lucide-react'
 import { ImageUploadField, type ImageUploadFieldHandle } from '../ui/ImageUploadField'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
+import { TimeSelect } from '../ui/TimeSelect'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
+import { displayDateToInputValue } from '../../utils/date'
 
 export interface BasicInformationValues {
   title: string
@@ -102,21 +104,19 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Start Date" required>
               <input
-                type="text"
+                type="date"
                 name="startDate"
                 className={inputClassName}
-                placeholder="e.g. March 15, 2026"
-                defaultValue={defaults.startDate}
+                defaultValue={displayDateToInputValue(defaults.startDate)}
                 required
               />
             </FormField>
             <FormField label="End Date" required>
               <input
-                type="text"
+                type="date"
                 name="endDate"
                 className={inputClassName}
-                placeholder="e.g. March 15, 2026"
-                defaultValue={defaults.endDate}
+                defaultValue={displayDateToInputValue(defaults.endDate)}
                 required
               />
             </FormField>
@@ -124,22 +124,10 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
 
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Start Time">
-              <input
-                type="text"
-                name="startTime"
-                className={inputClassName}
-                placeholder="e.g. 10:00 AM | WAT"
-                defaultValue={defaults.startTime}
-              />
+              <TimeSelect name="startTime" defaultValue={defaults.startTime} />
             </FormField>
             <FormField label="End Time">
-              <input
-                type="text"
-                name="endTime"
-                className={inputClassName}
-                placeholder="e.g. 10:00 AM | WAT"
-                defaultValue={defaults.endTime}
-              />
+              <TimeSelect name="endTime" defaultValue={defaults.endTime} />
             </FormField>
           </div>
 
@@ -155,11 +143,10 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
               </div>
             </div>
             <input
-              type="text"
+              type="date"
               name="registrationDeadline"
               className={inputClassName}
-              placeholder="e.g. 10:00 AM | WAT"
-              defaultValue={defaults.registrationDeadline}
+              defaultValue={displayDateToInputValue(defaults.registrationDeadline)}
             />
           </div>
 
