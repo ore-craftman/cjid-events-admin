@@ -1,7 +1,15 @@
 import { Logo } from './Logo'
 
-const eventsLinks = ['Upcoming Events', 'Past Events' /* , 'Blog' */]
-const orgLinks = ['About CJID', 'Contact', 'Privacy Policy']
+const eventsLinks = [
+  { label: 'Upcoming Events', href: '#' },
+  { label: 'Past Events', href: '#' },
+]
+
+const orgLinks = [
+  { label: 'About CJID', href: 'https://thecjid.org/about/', external: true },
+  { label: 'Contact', href: '#' },
+  { label: 'Privacy Policy', href: '#' },
+]
 
 export function Footer() {
   return (
@@ -18,9 +26,9 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold">Events</h3>
             <ul className="space-y-2">
               {eventsLinks.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-zinc-400 transition-colors hover:text-white">
-                    {link}
+                <li key={link.label}>
+                  <a href={link.href} className="text-sm text-zinc-400 transition-colors hover:text-white">
+                    {link.label}
                   </a>
                 </li>
               ))}
@@ -30,9 +38,14 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold">Organisation</h3>
             <ul className="space-y-2">
               {orgLinks.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-zinc-400 transition-colors hover:text-white">
-                    {link}
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target={link.external ? '_blank' : undefined}
+                    rel={link.external ? 'noopener noreferrer' : undefined}
+                    className="text-sm text-zinc-400 transition-colors hover:text-white"
+                  >
+                    {link.label}
                   </a>
                 </li>
               ))}
