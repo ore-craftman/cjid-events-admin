@@ -12,6 +12,7 @@ import {
 import { FeedbackMessage } from '../components/ui/FeedbackMessage'
 import { getEvent, updateEvent } from '../api/events'
 import { ApiError } from '../api/client'
+import { getEventStatusFromDate } from '../utils/date'
 import type { Event } from '../types'
 
 export function EditEventPage() {
@@ -55,6 +56,7 @@ export function EditEventPage() {
       }
 
       const audienceResources = audienceResourcesRef.current?.getValues()
+      const status = basic.status || getEventStatusFromDate(basic.startDate, basic.endDate)
 
       await updateEvent(id, {
         title: basic.title,
@@ -64,8 +66,9 @@ export function EditEventPage() {
         endTime: basic.endTime,
         registrationDeadline: basic.registrationDeadline,
         location: basic.location,
+        venue: basic.venue,
         type: basic.type,
-        status: basic.status,
+        status,
         description: basic.description,
         featured,
         moderator: basic.moderator,
@@ -122,17 +125,16 @@ export function EditEventPage() {
     <Layout>
       <div className="animate-slide-up mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
-          to="/?tab=upcoming"
+          to="/"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Events
         </Link>
-        <h1 className="text-2xl font-bold text-zinc-900 sm:text-3xl">Edit Event</h1>
-        <p className="mt-1 text-sm text-zinc-500">{event.title}</p>
+        <h1 className="mb-6 text-2xl font-bold text-zinc-900 sm:mb-8 sm:text-3xl">Edit Event</h1>
 
         {feedback && (
-          <div className="mt-6">
+          <div className="mb-6">
             <FeedbackMessage
               type={feedback.type}
               message={feedback.message}
@@ -155,6 +157,7 @@ export function EditEventPage() {
               endTime: event.endTime,
               registrationDeadline: event.registrationDeadline,
               location: event.location,
+              venue: event.venue,
               eventType: event.type.toLowerCase(),
               status: event.status.toLowerCase(),
               description: event.description,

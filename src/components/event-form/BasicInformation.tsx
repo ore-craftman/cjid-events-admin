@@ -1,11 +1,11 @@
-import { forwardRef, useImperativeHandle, useRef } from 'react'
-import { Info, Star } from 'lucide-react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Calendar, Info, Star } from 'lucide-react'
 import { ImageUploadField, type ImageUploadFieldHandle } from '../ui/ImageUploadField'
 import { FormField, inputClassName, selectClassName, textareaClassName } from '../ui/FormField'
 import { FormSection } from '../ui/FormSection'
 import { TimeSelect } from '../ui/TimeSelect'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
-import { displayDateToInputValue } from '../../utils/date'
+import { displayDateToInputValue, getEventStatusFromDate } from '../../utils/date'
 
 export interface BasicInformationValues {
   title: string
@@ -51,9 +51,48 @@ interface BasicInformationProps {
 }
 
 export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformationProps>(
-  function BasicInformation({ featured, onFeaturedChange, showStatus, defaults = {} }, ref) {
+  function BasicInformation({ featured, onFeaturedChange, showStatus = true, defaults = {} }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
     const imageFieldRef = useRef<ImageUploadFieldHandle>(null)
+
+    const initialStartDate = displayDateToInputValue(defaults.startDate)
+    const initialEndDate = displayDateToInputValue(defaults.endDate)
+    const isDraft = defaults.status?.toLowerCase() === 'draft'
+    const computedInitialStatus = isDraft
+      ? 'draft'
+      : getEventStatusFromDate(initialStartDate, initialEndDate)
+
+    const [startDateVal, setStartDateVal] = useState(initialStartDate)
+    const [endDateVal, setEndDateVal] = useState(initialEndDate)
+    const [statusVal, setStatusVal] = useState(computedInitialStatus)
+    const [userOverrodeStatus, setUserOverrodeStatus] = useState(false)
+
+    useEffect(() => {
+      const sDate = displayDateToInputValue(defaults.startDate)
+      const eDate = displayDateToInputValue(defaults.endDate)
+      setStartDateVal(sDate)
+      setEndDateVal(eDate)
+      if (!userOverrodeStatus) {
+        const isDraftStatus = defaults.status?.toLowerCase() === 'draft'
+        setStatusVal(isDraftStatus ? 'draft' : getEventStatusFromDate(sDate, eDate))
+      }
+    }, [defaults.startDate, defaults.endDate, defaults.status, userOverrodeStatus])
+
+    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value
+      setStartDateVal(val)
+      if (!userOverrodeStatus) {
+        setStatusVal(getEventStatusFromDate(val, endDateVal))
+      }
+    }
+
+    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value
+      setEndDateVal(val)
+      if (!userOverrodeStatus) {
+        setStatusVal(getEventStatusFromDate(startDateVal, val))
+      }
+    }
 
     useImperativeHandle(ref, () => ({
       getValues: () => {
@@ -62,17 +101,21 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
           (root?.querySelector(`[name="${name}"]`) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)
             ?.value ?? ''
 
+        const formStartDate = value('startDate')
+        const formEndDate = value('endDate')
+        const formStatus = statusVal || value('status') || getEventStatusFromDate(formStartDate, formEndDate)
+
         return {
           title: value('title'),
-          startDate: value('startDate'),
-          endDate: value('endDate'),
+          startDate: formStartDate,
+          endDate: formEndDate,
           startTime: value('startTime'),
           endTime: value('endTime'),
           registrationDeadline: value('registrationDeadline'),
           location: value('location'),
           venue: value('venue'),
           type: value('type'),
-          status: value('status'),
+          status: formStatus,
           description: value('description'),
           moderator: value('moderator'),
           externalRegistrationUrl: value('externalRegistrationUrl'),
@@ -107,7 +150,8 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
                 type="date"
                 name="startDate"
                 className={inputClassName}
-                defaultValue={displayDateToInputValue(defaults.startDate)}
+                defaultValue={initialStartDate}
+                onChange={handleStartDateChange}
                 required
               />
             </FormField>
@@ -116,7 +160,8 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
                 type="date"
                 name="endDate"
                 className={inputClassName}
-                defaultValue={displayDateToInputValue(defaults.endDate)}
+                defaultValue={initialEndDate}
+                onChange={handleEndDateChange}
                 required
               />
             </FormField>
@@ -160,6 +205,18 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
                 defaultValue={defaults.location}
               />
             </FormField>
+            <FormField label="Venue">
+              <input
+                type="text"
+                name="venue"
+                className={inputClassName}
+                placeholder="Venue name (e.g. Virtual, Main Auditorium)"
+                defaultValue={defaults.venue}
+              />
+            </FormField>
+          </div>
+
+          <div className={showStatus ? 'grid gap-4 sm:grid-cols-2' : ''}>
             <FormField label="Event Type">
               <select name="type" className={selectClassName} defaultValue={defaults.eventType || ''}>
                 <option value="" disabled>
@@ -171,26 +228,33 @@ export const BasicInformation = forwardRef<BasicInformationHandle, BasicInformat
                 <option value="conference">Conference</option>
               </select>
             </FormField>
+
+            {showStatus && (
+              <FormField label="Status">
+                <select
+                  name="status"
+                  className={selectClassName}
+                  value={statusVal}
+                  onChange={(e) => {
+                    setStatusVal(e.target.value)
+                    setUserOverrodeStatus(true)
+                  }}
+                >
+                  <option value="upcoming">Upcoming</option>
+                  <option value="past">Past</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </FormField>
+            )}
           </div>
 
-          {showStatus ? (
-            <FormField label="Status">
-              <select name="status" className={selectClassName} defaultValue={defaults.status || 'upcoming'}>
-                <option value="upcoming">Upcoming</option>
-                <option value="past">Past</option>
-                <option value="draft">Draft</option>
-              </select>
-            </FormField>
-          ) : (
-            <FormField label="Venue">
-              <input
-                type="text"
-                name="venue"
-                className={inputClassName}
-                placeholder="Venue name"
-                defaultValue={defaults.venue}
-              />
-            </FormField>
+          {statusVal === 'past' && (
+            <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2 text-xs text-amber-800">
+              <Calendar className="h-4 w-4 shrink-0 text-amber-600" />
+              <span>
+                This event is set as <strong>Past</strong> based on its date and will appear under <strong>Past Events</strong>.
+              </span>
+            </div>
           )}
 
           <FormField label="Description">
