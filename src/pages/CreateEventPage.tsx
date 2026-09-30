@@ -14,6 +14,7 @@ import { FeedbackMessage } from '../components/ui/FeedbackMessage'
 import { createEvent } from '../api/events'
 import { defaultRegistrationFields } from '../constants/defaults'
 import { ApiError } from '../api/client'
+import { getEventStatusFromDate } from '../utils/date'
 
 export function CreateEventPage() {
   const navigate = useNavigate()
@@ -39,6 +40,8 @@ export function CreateEventPage() {
         throw new Error('Please fill in the required fields: title, date, and event type.')
       }
 
+      const status = basic.status || getEventStatusFromDate(basic.startDate, basic.endDate)
+
       await createEvent({
         title: basic.title,
         date: basic.startDate,
@@ -49,7 +52,7 @@ export function CreateEventPage() {
         location: basic.location,
         venue: basic.venue,
         type: basic.type,
-        status: 'upcoming',
+        status,
         description: basic.description,
         featured,
         moderator: basic.moderator,
@@ -65,7 +68,7 @@ export function CreateEventPage() {
         type: 'success',
         message: 'Event created successfully! Redirecting to dashboard…',
       })
-      setTimeout(() => navigate('/?tab=upcoming'), 2000)
+      setTimeout(() => navigate(`/?tab=${status.toLowerCase()}`), 2000)
     } catch (err) {
       setFeedback({
         type: 'error',

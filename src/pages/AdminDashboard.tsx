@@ -51,6 +51,12 @@ export function AdminDashboard() {
     loadData()
   }, [])
 
+  useEffect(() => {
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
+
   const handleTabChange = (tab: DashboardTab) => {
     setActiveTab(tab)
     setSearchParams({ tab })
